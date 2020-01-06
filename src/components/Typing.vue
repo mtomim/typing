@@ -30,9 +30,10 @@
                     @keyup.enter="add"
                   />
                 </template>
-                <span
-                  >À la fin, tape <v-icon>mdi-keyboard-return</v-icon> (entrer) !</span
-                >
+                <span>
+                  À la fin, tape
+                  <v-icon dark>mdi-keyboard-return</v-icon>(entrer) !
+                </span>
               </v-tooltip>
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
@@ -46,9 +47,10 @@
                     v-model="listName"
                   />
                 </template>
-                <span
-                  >À la fin, tape <v-icon>mdi-keyboard-return</v-icon> (entrer) !</span
-                >
+                <span>
+                  À la fin, tape
+                  <v-icon dark>mdi-keyboard-return</v-icon>(entrer) !
+                </span>
               </v-tooltip>
               <v-btn
                 @click="
@@ -56,23 +58,22 @@
                   listName = '';
                   adding = '';
                 "
-              >
-                Créer une nouvelle collection
-              </v-btn>
+              >Créer une nouvelle collection</v-btn>
             </v-col>
             <v-col cols="8">
               <v-container>
-                <v-row>
-                  <v-card
+                <v-row justify="end">
+                  <v-chip
                     outlined
+                    close
                     class="phrase mx-auto"
                     max-width="350"
                     tile
                     raised
                     v-for="(phrase, idx) in phrasesToDisplay"
                     :key="idx + phrase"
-                    >{{ phrase }}</v-card
-                  >
+                    @click:close="pullPhrase(phrase);"
+                  >{{ phrase }}</v-chip>
                 </v-row>
               </v-container>
             </v-col>
@@ -81,24 +82,18 @@
         <section>
           <v-row align="center">
             <v-col cols="3">
-              <v-btn outlined @click="newGame" color="primary"
-                >démarrer !</v-btn
-              >
-              <v-btn outlined @click="game.reset();currentPhrase='';" color="primary"
-                >abandonner !</v-btn
-              >
+              <v-btn outlined @click="newGame" color="primary">démarrer !</v-btn>
+              <v-btn outlined @click="game.reset();currentPhrase='';" color="primary">abandonner !</v-btn>
             </v-col>
             <v-col cols="9">
               <v-row v-if="currentPhrase.length" justify="center">
                 <v-card
                   filled
                   color="primary"
-                  class="phrase display-2"
+                  class="phrase display-1 mx-1 px-3"
                   raised
                   dark
-                >
-                  {{ currentPhrase }}
-                </v-card>
+                >{{ currentPhrase }}</v-card>
               </v-row>
               <v-row>
                 <v-text-field
@@ -118,12 +113,12 @@
               <v-chip outlined>
                 <v-icon left>mdi-speedometer</v-icon>
                 {{
-                  new Intl.NumberFormat("fr-FR", {
-                    maximumFractionDigits: 2
-                  }).format(game.average)
+                new Intl.NumberFormat("fr-FR", {
+                maximumFractionDigits: 2
+                }).format(game.average)
                 }}
-                mots/minute</v-chip
-              >
+                mots/minute
+              </v-chip>
             </v-col>
             <v-col cols="9">
               <v-sparkline
@@ -149,26 +144,20 @@
           <v-menu offset-y>
             <template v-slot:activator="{ on }">
               <v-btn color="primary" v-on="on">
-                <v-icon dark left>mdi-menu</v-icon>
-                Collections sauvegardées
+                <v-icon dark left>mdi-menu</v-icon>Collections sauvegardées
               </v-btn>
             </template>
             <v-list>
-              <v-list-item
-                v-for="(item, index) in phraseList"
-                :key="index"
-                @click="load(item)"
-              >
+              <v-list-item v-for="(item, index) in phraseList" :key="index" @click="load(item)">
                 <v-list-item-title>
                   <v-icon left>mdi-import</v-icon>
-                  {{ item.name }}</v-list-item-title
-                >
+                  {{ item.name }}
+                </v-list-item-title>
               </v-list-item>
               <v-list-item @click="exportFile">
                 <v-list-item-title>
-                  <v-icon left>mdi-export</v-icon>
-                  Exporter...</v-list-item-title
-                >
+                  <v-icon left>mdi-export</v-icon>Exporter...
+                </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
@@ -187,24 +176,14 @@
         <div class="ok-words">
           <v-container>
             <v-row justify="space-around">
-              <v-card
-                color="success"
-                v-for="(p, i) in game.finished"
-                :key="i + p"
-                >{{ p }}</v-card
-              >
+              <v-card color="success" v-for="(p, i) in game.finished" :key="i + p">{{ p }}</v-card>
             </v-row>
           </v-container>
         </div>
         <div class="ko-words">
           <v-container>
             <v-row justify="space-around">
-              <v-card
-                tile
-                raised
-                v-for="(p, i) in reverseFailures"
-                :key="i + p"
-              >
+              <v-card tile raised v-for="(p, i) in reverseFailures" :key="i + p">
                 <span
                   v-for="(part, i) in diff.diffChars(
                     p[0].substring(0, p[1].length).slice(-20),
@@ -212,8 +191,7 @@
                   )"
                   :key="i"
                   :class="part.added || part.deleted ? 'red bad' : 'yellow'"
-                  >{{ part.value }}</span
-                >
+                >{{ part.value }}</span>
               </v-card>
             </v-row>
           </v-container>
@@ -225,6 +203,7 @@
 <script>
 const format = require("date-format");
 const diff = require("diff");
+const _ = require("lodash/array");
 const keyMarker = "-phrase-list-";
 const dateFormat = "yyyy-MM-dd-hhmmss";
 
@@ -327,6 +306,10 @@ export default {
     }
   },
   methods: {
+    pullPhrase(phrase) {
+      this.adding = phrase;
+      this.phrases = _.without(this.phrases, phrase);
+    },
     localSaveHandler() {
       const date = new Date();
       const suffix = format.asString(dateFormat, date);
