@@ -26,6 +26,7 @@
                     label="Phrase à taper"
                     placeholder="une autre phrase ?"
                     v-on="on"
+                    v-model="adding"
                     @keyup.enter="add"
                   />
                 </template>
