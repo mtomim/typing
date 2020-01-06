@@ -368,7 +368,6 @@ export default {
       } else {
         this.currentPhrase = "";
         this.game.ended = new Date().getTime();
-        console.log("this.game.finished", this.game.finished);
         if (this.game.finished.join() !== "") {
           const wordsCount = this.game.original.join(" ").split(/[ ,'"]/)
             .length;
