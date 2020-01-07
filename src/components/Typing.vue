@@ -87,7 +87,7 @@
         </section>
         <section>
           <v-row align="center" justify="start">
-            <v-col cols="3" ro>
+            <v-col cols="3">
               <v-btn
                 v-if="!game.running()"
                 outlined
