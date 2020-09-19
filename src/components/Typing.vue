@@ -1,19 +1,7 @@
 <template>
   <v-container>
     <div>
-      <v-row>
-        <h1 v-if="userName">Bonjour {{ userName }} !</h1>
-        <h1 v-if="!userName">
-          Bienvenue ! Comment t'appelles-tu ?
-          <v-text-field
-            prepend-icon="mdi-account-circle"
-            outlined
-            label="Login"
-            placeholder="mets ton nom ici !"
-            @keyup.enter="setUserName"
-          />
-        </h1>
-      </v-row>
+      <greeting @set-user-name="setUserName" :user-name="userName" />
       <article>
         <section>
           <v-row>
@@ -66,22 +54,7 @@
               >
             </v-col>
             <v-col cols="8">
-              <v-container>
-                <v-row justify="end">
-                  <v-chip
-                    outlined
-                    :close="!game.running()"
-                    class="phrase mx-auto"
-                    max-width="350"
-                    tile
-                    raised
-                    v-for="(phrase, idx) in phrasesToDisplay"
-                    :key="idx + phrase"
-                    @click:close="pullPhrase(phrase)"
-                    >{{ phrase }}</v-chip
-                  >
-                </v-row>
-              </v-container>
+              <game-words :phrases="phrasesToDisplay" @pull-phrase="pullPhrase"/>
             </v-col>
           </v-row>
         </section>
@@ -244,11 +217,17 @@ const diff = require("diff");
 const _ = require("lodash/array");
 const keyMarker = "-phrase-list-";
 const dateFormat = "yyyy-MM-dd-hhmmss";
+import greeting from "./greetingPart";
+import gameWords from "./gameWords";
 
 export default {
   name: "Typing",
   props: {
     msg: String
+  },
+  components: {
+    greeting,
+    gameWords
   },
   data: () => ({
     adding: "",
@@ -385,7 +364,7 @@ export default {
     },
     start() {
       if (this.game.list.length) {
-        this.currentPhrase = this.game.list.shift();
+        this.currentPhrase = this.game.list.shift().replace(/\s+/g, " ");
       } else {
         this.currentPhrase = "";
         this.game.ended = new Date().getTime();
