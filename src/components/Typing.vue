@@ -217,11 +217,9 @@
   </v-container>
 </template>
 <script>
-const format = require("date-format");
 const diff = require("diff");
 const _ = require("lodash/array");
 const keyMarker = "-phrase-list-";
-const dateFormat = "yyyy-MM-dd-hhmmss";
 import greeting from "./greetingPart";
 import gameWords from "./gameWords";
 
@@ -277,10 +275,7 @@ export default {
         list.push({
           list: JSON.parse(localStorage.getItem(key)),
           name: key.substring(0, key.indexOf(keyMarker)),
-          date: format.parse(
-            dateFormat,
-            key.substring(key.indexOf(keyMarker) + keyMarker.length)
-          ),
+          date: key.substring(key.indexOf(keyMarker) + keyMarker.length),
           key: key,
         });
       }
@@ -332,9 +327,17 @@ export default {
       this.adding = phrase;
       this.phrases = _.without(this.phrases, phrase);
     },
+    formatDate(date) {
+      const pad = (num) => String(num).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+      )}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(
+        date.getSeconds()
+      )}`;
+    },
     localSaveHandler() {
       const date = new Date();
-      const suffix = format.asString(dateFormat, date);
+      const suffix = this.formatDate(date);
       const listFinalName = `${this.listName}${keyMarker}${suffix}`;
       this.phraseList = this.phraseList.filter((l) => l.name !== this.listName);
       this.phraseList.push({
@@ -410,7 +413,7 @@ export default {
       );
       link.setAttribute(
         "download",
-        `export-${format(dateFormat, new Date())}.json`
+        `export-${this.formatDate(new Date())}.json`
       );
       link.click();
     },
