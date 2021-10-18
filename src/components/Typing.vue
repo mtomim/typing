@@ -1,143 +1,139 @@
 <template>
   <v-container>
     <div>
-      <greeting @set-user-name="setUserName" :user-name="userName" />
-      <article>
-        <section>
-          <v-row>
-            <v-col cols="4">
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-text-field
-                    prepend-icon="mdi-chat-processing"
-                    outlined
-                    label="Phrase à taper"
-                    placeholder="une autre phrase ?"
-                    v-on="on"
-                    v-model="adding"
-                    @keyup.enter="add"
-                  />
-                </template>
-                <span>
-                  À la fin, tape
-                  <v-icon dark>mdi-keyboard-return</v-icon>(entrer) !
-                </span>
-              </v-tooltip>
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-text-field
-                    prepend-icon="mdi-label"
-                    outlined
-                    label="Nommer la liste"
-                    placeholder="nom de la liste ?"
-                    @keyup.enter="localSaveHandler()"
-                    v-on="on"
-                    v-model="listName"
-                  />
-                </template>
-                <span>
-                  À la fin, tape
-                  <v-icon dark>mdi-keyboard-return</v-icon>(entrer) !
-                </span>
-              </v-tooltip>
-              <v-chip
-                v-if="phrasesToDisplay.length"
+      <v-row>
+        <v-col>
+          <greeting @set-user-name="setUserName" :user-name="userName" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="4">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                prepend-icon="mdi-chat-processing"
                 outlined
-                color="orange"
-                @click="
-                  phrases = [];
-                  listName = '';
-                  adding = '';
-                "
-                ><v-icon left>mdi-star-four-points-outline</v-icon>Créer une
-                nouvelle collection</v-chip
-              >
-            </v-col>
-            <v-col cols="8">
-              <game-words
-                :phrases="phrasesToDisplay"
-                @pull-phrase="pullPhrase"
+                label="Phrase à taper"
+                placeholder="une autre phrase ?"
+                v-on="on"
+                v-model="adding"
+                @keyup.enter="add"
               />
-            </v-col>
-          </v-row>
-        </section>
-        <section>
-          <v-row align="center" justify="start">
-            <v-col cols="3">
-              <v-btn
-                v-if="!game.running()"
+            </template>
+            <span>
+              À la fin, <v-icon dark>mdi-keyboard-return</v-icon> !
+            </span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                prepend-icon="mdi-label"
                 outlined
-                @click="newGame"
-                color="primary"
-                >démarrer !</v-btn
-              >
-              <v-btn
-                v-if="game.running()"
-                outlined
-                @click="
-                  game.reset();
-                  currentPhrase = '';
-                "
-                color="primary"
-                >abandonner !</v-btn
-              >
-            </v-col>
-            <v-col cols="9" align-self="center">
-              <v-row v-if="currentPhrase.length" justify="center">
-                <v-card
-                  filled
-                  color="primary"
-                  class="phrase title mx-1 px-3"
-                  raised
-                  dark
-                  >{{ currentPhrase }}</v-card
-                >
-              </v-row>
-              <v-row>
-                <v-text-field
-                  class="mb-n8"
-                  :prepend-icon="currentStatus"
-                  outlined
-                  v-model="game.typed"
-                  ref="typingField"
-                  @click.stop="newGameReady && newGame()"
-                  @keyup.enter.stop="newGameReady && newGame()"
-                  @keyup="handleTyping"
-                />
-              </v-row>
-            </v-col>
+                label="Nommer la liste"
+                placeholder="nom de la liste ?"
+                @keyup.enter="localSaveHandler()"
+                v-on="on"
+                v-model="listName"
+              />
+            </template>
+            <span>
+              À la fin, <v-icon dark>mdi-keyboard-return</v-icon> !
+            </span>
+          </v-tooltip>
+          <v-chip
+            v-if="phrasesToDisplay.length"
+            outlined
+            color="orange"
+            @click="
+              phrases = [];
+              listName = '';
+              adding = '';
+            "
+            ><v-icon left>mdi-star-four-points-outline</v-icon>Créer une
+            nouvelle collection</v-chip
+          >
+        </v-col>
+        <v-col cols="8">
+          <game-words
+            :phrases="phrasesToDisplay"
+            @pull-phrase="pullPhrase"
+          />
+        </v-col>
+      </v-row>
+      <v-row align="center" justify="start">
+        <v-col cols="3">
+          <v-btn
+            v-if="!game.running()"
+            outlined
+            @click="newGame"
+            color="primary"
+            >démarrer !</v-btn
+          >
+          <v-btn
+            v-if="game.running()"
+            outlined
+            @click="
+              game.reset();
+              currentPhrase = '';
+            "
+            color="primary"
+            >abandonner !</v-btn
+          >
+        </v-col>
+        <v-col cols="9" align-self="center">
+          <v-row v-if="currentPhrase.length" justify="center">
+            <v-card
+              filled
+              color="primary"
+              class="phrase title mx-1 px-3"
+              raised
+              dark
+              >{{ currentPhrase }}</v-card
+            >
           </v-row>
-          <v-row align="center">
-            <v-col cols="3">
-              <v-chip outlined>
-                <v-icon left>mdi-speedometer</v-icon>
-                {{
-                  new Intl.NumberFormat("fr-FR", {
-                    maximumFractionDigits: 2,
-                  }).format(game.average)
-                }}
-                mots/minute
-              </v-chip>
-            </v-col>
-            <v-col cols="9">
-              <v-sparkline
-                v-if="averageHistory.length > 1"
-                :value="averageHistory"
-                :gradient="gradient"
-                smooth="10"
-                padding="3"
-                line-width="2"
-                stroke-linecap="round"
-                gradient-direction="top"
-                :fill="false"
-                type="trend"
-                :auto-line-width="false"
-                auto-draw
-              ></v-sparkline>
-            </v-col>
+          <v-row>
+            <v-text-field
+              class="mb-n8"
+              :prepend-icon="currentStatus"
+              outlined
+              v-model="game.typed"
+              ref="typingField"
+              @click.stop="newGameReady && newGame()"
+              @keyup.enter.stop="newGameReady && newGame()"
+              @keyup="handleTyping"
+            />
           </v-row>
-        </section>
-      </article>
+        </v-col>
+      </v-row>
+      <v-row align="center">
+        <v-col cols="3">
+          <v-chip outlined>
+            <v-icon left>mdi-speedometer</v-icon>
+            {{
+              new Intl.NumberFormat("fr-FR", {
+                maximumFractionDigits: 2,
+              }).format(game.average)
+            }}
+            mots/minute
+          </v-chip>
+        </v-col>
+        <v-col cols="9">
+          <v-sparkline
+            v-if="averageHistory.length > 1"
+            :value="averageHistory"
+            :gradient="gradient"
+            smooth="10"
+            padding="3"
+            line-width="2"
+            stroke-linecap="round"
+            gradient-direction="top"
+            :fill="false"
+            type="trend"
+            :auto-line-width="false"
+            auto-draw
+          ></v-sparkline>
+        </v-col>
+      </v-row>
       <v-row>
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
