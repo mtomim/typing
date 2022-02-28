@@ -220,7 +220,7 @@ import greeting from "./greetingPart";
 import gameWords from "./gameWords";
 
 export default {
-  name: "Typing",
+  name: "Typing app",
   props: {
     msg: String,
   },
