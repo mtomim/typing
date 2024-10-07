@@ -192,11 +192,11 @@
               <v-card
                 tile
                 raised
-                v-for="(p, i) in reverseFailures"
-                :key="i + p"
+                v-for="(p, j) in reverseFailures"
+                :key="j"
               >
                 <span
-                  v-for="(part, i) in diff.diffChars(
+                  v-for="(part, i) in diffChars(
                     p[0].substring(0, p[1].length).slice(-20),
                     p[1].slice(-20)
                   )"
@@ -213,8 +213,8 @@
   </v-container>
 </template>
 <script>
-const diff = require("diff");
-const _ = require("lodash/array");
+import { diffChars } from "diff";
+import { _ } from "lodash/array";
 const keyMarker = "-phrase-list-";
 import greeting from "./greetingPart";
 import gameWords from "./gameWords";
@@ -260,7 +260,7 @@ export default {
           (this.typed = "");
       },
     },
-    diff: diff,
+    diffChars,
   }),
   mounted: function() {
     this.userName = localStorage.getItem("userName");
