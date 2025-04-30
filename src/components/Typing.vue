@@ -192,13 +192,12 @@
               <v-card
                 tile
                 raised
-                v-for="(p, j) in reverseFailures"
-                :key="j"
+                v-if="!!currentFailure"
               >
                 <span
                   v-for="(part, i) in diffChars(
-                    p[0].substring(0, p[1].length).slice(-20),
-                    p[1].slice(-20)
+                    currentFailure[1].substring(0, currentFailure[1].length).slice(-20),
+                    currentFailure[0].slice(-20)
                   )"
                   :key="i"
                   :class="part.added || part.deleted ? 'red bad' : 'yellow'"
@@ -261,6 +260,7 @@ export default {
       },
     },
     diffChars,
+    currentFailure: null,
   }),
   mounted: function() {
     this.userName = localStorage.getItem("userName");
@@ -382,6 +382,7 @@ export default {
       }
     },
     handleTyping() {
+      this.currentFailure = null;
       if (this.game.ended) {
         return;
       }
@@ -389,7 +390,8 @@ export default {
         this.next();
       }
       if (!this.currentPhrase.startsWith(this.game.typed)) {
-        this.game.failed.push([this.currentPhrase, this.game.typed]);
+        this.currentFailure = [this.currentPhrase, this.game.typed];
+        this.game.failed.push(this.currentFailure);
       }
     },
     next() {
